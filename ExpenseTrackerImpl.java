@@ -15,6 +15,14 @@ public class ExpenseTrackerImpl implements ExpenseTracker{
 
     @Override
     public double calculateTotal(){
-        return expenses.stream().mapToDouble(Expense::getAmount).sum();
+        return expenses.stream().mapToDouble(Expense::amount).sum();
+    }
+
+    public List<Expense> getExpenses(){
+        return new ArrayList<>(expenses);
+    }
+
+    public void clearExpenses(){
+        expenses.clear();
     }
 }

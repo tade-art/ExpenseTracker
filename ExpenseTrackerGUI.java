@@ -1,28 +1,28 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class ExpenseTrackerGUI{
-    private ExpenseTracker expenseTracker;
-
+    private final ExpenseTracker expenseTracker;
+    private JTextArea expenseTextArea;
     public ExpenseTrackerGUI(ExpenseTracker expenseTracker){
         this.expenseTracker = expenseTracker;
-        SwingUtilities.invokeLater( ()-> ETDriver());
+        SwingUtilities.invokeLater(this::ETDriver);
     }
 
     private void ETDriver(){
         JFrame frame = new JFrame("Expense Tracker");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setBackground(new Color(240, 240, 240));
 
         JTextField descriptionField = new JTextField(20);
         JTextField amountField = new JTextField(10);
 
         JButton addButton = new JButton("Add Expense");
         JButton totalButton = new JButton("Calculate Total");
+        JButton showExpensesButton = new JButton("Show Expenses");
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 2, 10, 10));
-        panel.setBackground(new Color(240, 240, 240));
+        panel.setLayout(new GridLayout(4, 3));
 
         panel.add(new JLabel("Description:"));
         panel.add(descriptionField);
@@ -30,11 +30,22 @@ public class ExpenseTrackerGUI{
         panel.add(amountField);
         panel.add(addButton);
         panel.add(totalButton);
+        panel.add(showExpensesButton);
 
         addButton.setBackground(new Color(60, 141, 188));
         addButton.setForeground(Color.WHITE);
         totalButton.setBackground(new Color(60, 141, 188));
         totalButton.setForeground(Color.WHITE);
+        showExpensesButton.setBackground(new Color(60, 141, 188));
+        showExpensesButton.setForeground(Color.WHITE);
+
+        expenseTextArea = new JTextArea(10, 30);
+        expenseTextArea.setEnabled(false);
+        expenseTextArea.setFocusable(false);
+        JScrollPane scrollPane = new JScrollPane(expenseTextArea);
+
+        frame.getContentPane().add(panel, BorderLayout.NORTH);
+        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         addButton.addActionListener(e -> {
             String description = descriptionField.getText();
@@ -48,13 +59,29 @@ public class ExpenseTrackerGUI{
 
         totalButton.addActionListener(e -> {
             double total = expenseTracker.calculateTotal();
-            JOptionPane.showMessageDialog(null, "Total Expense: $" + total);
+            JOptionPane.showMessageDialog(null, "Total Expense: £" + total);
         });
 
-        frame.getContentPane().add(panel);
+        showExpensesButton.addActionListener(e -> displayExpenses());
+
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    private void displayExpenses(){
+        List<Expense> expenses = expenseTracker.getExpenses();
+        if (expenses.isEmpty()){
+            expenseTextArea.setText("No expenses recorded.");
+            return;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder("User's Expenses:\n");
+        for (Expense expense : expenses){
+            stringBuilder.append("Description: ").append(expense.description())
+                    .append(", Amount: £").append(expense.amount()).append("\n");
+        }
+        expenseTextArea.setText(stringBuilder.toString());
     }
 
     public static void main(String[] args){
